@@ -1,0 +1,75 @@
+Bike Store Inc - Base de Dados
+This is a challenge by [Coodesh](https://coodesh.com/)
+Projeto para teste SQL utilizando um modelo de dados de um loja de bicicletas em SQL
+Linguagem SQL
+Todos os comentarios de desenvolvimento pertinente estão comentados acima da sua respectiva função
+
+Instruções de uso, aplicar no banco de dado as funções abaixo tirando os comentarios
+
+
+## Funções e comentarios sobre #Como esta com bug visual e sem acesso ao banco de dados irei tratar de maneiro mais generalista e irei optar por deixar separado por linha pra poder falar melhor sobre cada função:
+
+## 1 - Listar todos Clientes que não tenham realizado uma compra:
+
+# Nesta etapa seleciono quais colunas irei usar, assim sendo os dados relevantes
+SELECT c.costumer_id, c.first_name, c.last_name 
+# basicamente aponto qual tabela irei usar e apelido ela com c pra resumir o nome
+FROM costumers c
+# Aqui faço uma junção "a esquerda" basicamente para unir o id da tabela costumers ao id da tabela orders ou seja procurar os pedidos feito pelo cliente
+LEFT JOIN orders o ON c.costumer_id = o.costumer_id
+# Aqui faço para procurar apenas os clientes que não tem nenhum order feito
+WHERE o.order_id IS NULL;
+
+## 2 - Listar os Produtos que não tenham sido comprados:
+
+# Nesta etapa seleciono quais colunas irei usar, assim sendo os dados relevantes
+SELECT p.product_id,p.product_name 
+# basicamente aponto qual tabela irei usar e apelido ela com c pra resumir o nome
+FROM products p
+# Aqui faço uma junção "a esquerda" basicamente para unir o id da tabela product ao id da tabela orders_items
+LEFT JOIN order_items i ON p.product_id = i.product_id
+# Aqui faço para procurar apenas os producos que nunca foram comprados
+WHERE i.product_id IS NULL;
+
+## 3 - Listar os Produtos sem Estoque:
+
+# Nesta etapa seleciono quais colunas irei usar, assim sendo os dados relevantes
+SELECT p.product_id,p.product_name 
+# basicamente aponto qual tabela irei usar e apelido ela com p pra resumir o nome
+FROM products p
+# Aqui faço uma junção dos dados, basicamente para unir o id da tabela product ao id da tabela stocks
+JOIN stocks s ON p.product_id = s.product_id
+# Aqui faço para procurar apenas os producos que estão com o estoque zerados ou que nõ consta dados no estoque
+WHERE s.quantity = 0 OR s.quantity IS NULL;
+
+## 4 - Agrupar a quantidade de vendas que uma determinada Marca por Loja:
+
+# Nesta etapa inicio pegando o nome da loja, nome da marca e a somatoria de produtos vendidos
+SELECT l.store_name, b.brand_name, SUM(i.quantity) AS total_sales
+# "puxo"  tababela a qual tenho as informções de itens vendidos
+FROM order_items i
+# Aqui faço a comunicação entre estoque e os "produtos"
+JOIN stock s ON i.product_id = s.product_id
+# Relciona estoque com a loja para ver aonde foram vendidos
+JOIN stores l ON s.store_id = l.store_id
+# Aqui faço a junção para verificar as informções sobre os itens vendidos
+JOIN products p ON i.product_id = p.product_id
+# Aqui agrupo as vendas por marca
+JOIN brands b ON p.brand_id = b.brand_id
+# Agora agrupo as vendas por loja e marca
+GROUP BY l.store_name, b.brand_name
+# Aqui ordeno em ordem alfabetica por loja e em ordem decrecente por total de vendas
+ORDER BY l.store_name, total_sales DESC;
+
+
+
+## 5 - Listar os Funcionarios que não estejam relacionados a um Pedido:
+
+# Nesta etapa seleciono quais colunas irei usar, assim sendo os dados relevantes ou seja id, nome e ultimo nome
+SELECT s.staff_id, s.first_name, s.last_name 
+# basicamente aponto qual tabela irei usar e apelido ela com s pra resumir o nome
+FROM staff s
+# Aqui faço uma junção dos dados, basicamente para unir o id do staff da tabela staff com o da tabela orders
+LEFT JOIN orders o ON s.staff_id = o.staff_id
+# Aqui faço para procurar os staffs(funcionarios) que nõ constam relacionados a nenhum pedidoe
+WHERE o.order_id  IS NULL;
